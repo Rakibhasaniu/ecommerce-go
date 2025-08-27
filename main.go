@@ -37,12 +37,32 @@ func getProductsHandler( w http.ResponseWriter, r *http.Request){
 	}
 }
 
+func createProduct (w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var newProduct  Product
+
+	decoder :=json.NewDecoder(r.Body)
+	err :=decoder.Decode(&newProduct)
+	if err != nil {
+		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		return
+	}
+	newProduct.ID = len(productList) + 1
+	productList = append(productList, newProduct)
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(newProduct)
+}
+
 func main(){
 	mux := http.NewServeMux()
-	// mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	fmt.Fprintln(w, "Hello, world!")
-	// })
-
 	mux.HandleFunc("/hello", helloHandler)
 	mux.HandleFunc("/about", aboutHandler)
 	mux.HandleFunc("/products", getProductsHandler)
