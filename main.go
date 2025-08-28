@@ -14,7 +14,7 @@ func aboutHandler(w http.ResponseWriter, r *http.Request){
 }
 
 type Product struct {
-	ID int `json:"rakib_id"`
+	ID int 
 	Title string
 	Price float64
 	Description string
@@ -24,6 +24,12 @@ type Product struct {
 var productList  []Product
 
 func getProductsHandler( w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	if e.Method == 'OPTIONS' {
+		w.WriteHeader(200)
+		return
+	}
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -66,6 +72,7 @@ func main(){
 	mux.HandleFunc("/hello", helloHandler)
 	mux.HandleFunc("/about", aboutHandler)
 	mux.HandleFunc("/products", getProductsHandler)
+	mux.HandleFunc("/create-product", createProduct)
 
 	fmt.Print("Starting server on :3000\n")
 
