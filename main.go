@@ -24,28 +24,22 @@ type Product struct {
 var productList  []Product
 
 func getProductsHandler( w http.ResponseWriter, r *http.Request){
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	if e.Method == 'OPTIONS' {
-		w.WriteHeader(200)
-		return
-	}
+	handleCors(w)
+
+	handlePreflightRequest(w,r)
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	encoder :=json.NewEncoder(w)
-	err := encoder.Encode(productList)
-	if err != nil {
-		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
-		return
-	}
+	sendData(w,productList,200)
+
+	
 }
 
 func createProduct (w http.ResponseWriter, r *http.Request){
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	handleCors(w)
+	
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -63,9 +57,31 @@ func createProduct (w http.ResponseWriter, r *http.Request){
 	newProduct.ID = len(productList) + 1
 	productList = append(productList, newProduct)
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newProduct)
+	sendData(w,newProduct,201)
+
+	// w.WriteHeader(http.StatusCreated)
+	// json.NewEncoder(w).Encode(newProduct)
 }
+func handleCors(w http.ResponseWriter){
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods","POST,GET,PUT,UPDATE,PATCH,OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers","Content-Type") 
+}
+
+func handlePreflightRequest (w http.ResponseWriter, r *http.Request){
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		// return
+	}
+}
+
+ func sendData(w http.ResponseWriter, data interface {},statusCode int){
+		w.WriteHeader(statusCode)
+	// json.NewEncoder(w).Encode(newProduct)
+	encoder := json.NewEncoder(w)
+	encoder.Encode(data)
+ }
 
 func main(){
 	mux := http.NewServeMux()
@@ -74,9 +90,9 @@ func main(){
 	mux.HandleFunc("/products", getProductsHandler)
 	mux.HandleFunc("/create-product", createProduct)
 
-	fmt.Print("Starting server on :3000\n")
+	fmt.Print("Starting server on :8000\n")
 
-	err := http.ListenAndServe(":3000", mux)
+	err := http.ListenAndServe(":8000", mux)
 	if err != nil {
 		fmt.Print("Error starting server:", err)
 	}
