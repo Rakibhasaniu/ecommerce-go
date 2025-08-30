@@ -25,29 +25,20 @@ var productList  []Product
 
 func getProductsHandler( w http.ResponseWriter, r *http.Request){
 	handleCors(w)
-
-	handlePreflightRequest(w,r)
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
 		return
 	}
-
 	sendData(w,productList,200)
-
-	
 }
 
 func createProduct (w http.ResponseWriter, r *http.Request){
 	handleCors(w)
-	
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
 		return
 	}
-
 	var newProduct  Product
-
 	decoder :=json.NewDecoder(r.Body)
 	err :=decoder.Decode(&newProduct)
 	if err != nil {
@@ -56,11 +47,7 @@ func createProduct (w http.ResponseWriter, r *http.Request){
 	}
 	newProduct.ID = len(productList) + 1
 	productList = append(productList, newProduct)
-
 	sendData(w,newProduct,201)
-
-	// w.WriteHeader(http.StatusCreated)
-	// json.NewEncoder(w).Encode(newProduct)
 }
 func handleCors(w http.ResponseWriter){
 	w.Header().Set("Content-Type", "application/json")
@@ -85,10 +72,10 @@ func handlePreflightRequest (w http.ResponseWriter, r *http.Request){
 
 func main(){
 	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", helloHandler)
-	mux.HandleFunc("/about", aboutHandler)
-	mux.HandleFunc("/products", getProductsHandler)
-	mux.HandleFunc("/create-product", createProduct)
+	mux.Handle("GET /hello", http.HandlerFunc(helloHandler))
+	mux.Handle("GET /about", http.HandlerFunc(aboutHandler))
+	mux.Handle("GET /products", http.HandlerFunc(getProductsHandler))
+	mux.Handle("POST /create-product", http.HandlerFunc(createProduct))
 
 	fmt.Print("Starting server on :8000\n")
 
