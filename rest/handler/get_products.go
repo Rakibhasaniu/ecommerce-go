@@ -10,10 +10,5 @@ import (
 )
 
 func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
-
-	// if r.Method == "OPTIONS" {
-	// 	w.WriteHeader(200)
-	// 	return
-	// }
-	util.SendData(w, database.ProductList, 200)
+	util.SendData(w, database.List(), 200)
 }

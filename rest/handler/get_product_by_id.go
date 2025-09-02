@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -17,14 +16,12 @@ func GetProductById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for idx, product := range database.ProductList {
-		log.Println(idx, product)
-
-		if product.ID == pid {
-			util.SendData(w, product, 200)
-			return
-		}
+	product := database.Get(pid)
+	if product == nil {
+		util.SendError(w, 404, "Product Not Found")
+		return
 	}
-	util.SendData(w, "Data pai nai halarput ki id dis baintost", 404)
+
+	util.SendData(w, product, 200)
 
 }

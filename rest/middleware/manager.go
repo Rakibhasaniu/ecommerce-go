@@ -25,14 +25,11 @@ func (mngr *Manager) With(handler http.Handler, middlewares ...Middleware) http.
 		h = middleware(h)
 	}
 	return h
-
 }
 func (mngr *Manager) wrappedMux(handler http.Handler, middlewares ...Middleware) http.Handler {
 	h := handler
-
 	for _, middleware := range middlewares {
 		h = middleware(h)
 	}
 	return h
-
 }
